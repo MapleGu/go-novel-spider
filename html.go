@@ -59,25 +59,29 @@ func GetNovelInfoFromChannel() {
 func GetNovelChapterInfoChannel() {
 	for {
 		data := <-ChapterURLsChan
-		doc, err := GetHTMLContentFromURL(data.URL)
-		if err != nil {
-			log.Println("获取小说章节内容失败 -> ", data, err)
-			sleep()
-			ChapterURLsChan <- data
-		}
-
-		chapterPath := fmt.Sprintf("%s/%s-%s-%s/chapters", Dir, data.Novel.Category, data.Novel.Name, data.Novel.Author)
-		os.Mkdir(chapterPath, 0700)
-		f, err := os.Create(chapterPath + "/" + strconv.Itoa(data.Index) + "_" + data.Name + ".txt")
-		if err != nil {
-			log.Println("创建小说章节文件失败 ->", err, data)
-			sleep()
-			return
-		}
-		defer f.Close()
-		content := doc.Find(".content .txt").Text()
-		f.WriteString(content)
+		getNovelChapterInfoChannelHandle(data)
 	}
+}
+
+func getNovelChapterInfoChannelHandle(data *ChapterChanStruct) {
+	doc, err := GetHTMLContentFromURL(data.URL)
+	if err != nil {
+		log.Println("获取小说章节内容失败 -> ", data, err)
+		sleep()
+		ChapterURLsChan <- data
+	}
+
+	chapterPath := fmt.Sprintf("%s/%s-%s-%s/chapters", Dir, data.Novel.Category, data.Novel.Name, data.Novel.Author)
+	os.Mkdir(chapterPath, 0700)
+	f, err := os.Create(chapterPath + "/" + strconv.Itoa(data.Index) + "_" + data.Name + ".txt")
+	if err != nil {
+		log.Println("创建小说章节文件失败 ->", err, data)
+		sleep()
+		return
+	}
+	defer f.Close()
+	content := doc.Find(".content .txt").Text()
+	f.WriteString(content)
 }
 
 func getNovelInfoFromChannelHandleChapters() {
