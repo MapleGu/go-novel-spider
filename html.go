@@ -141,7 +141,7 @@ func GetHTMLContentFromURL(url string) (*goquery.Document, error) {
 	}
 	defer resp.Body.Close()
 
-	cd, err := iconv.Open("utf-8", "gbk")
+	cd, err := iconv.Open("utf-8", NovelEncoding)
 	if err != nil {
 		return nil, err
 	}
